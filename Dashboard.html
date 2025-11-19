@@ -104,4 +104,13 @@
         <p class="subtitle">Datos de acceso de los usuarios (Vista Privada)</p>
         
         <div class="controls">
-           
+            <button class="refresh-btn" onclick="loadVisitorData()">🔄 Actualizar Datos</button>
+        </div>
+
+        <div id="data-container">
+            <p class="loader">Cargando datos de visitantes...</p>
+        </div>
+    </div>
+
+    <script>
+        const dataContainer = document.getElementById
